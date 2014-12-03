@@ -6,4 +6,9 @@
      * How big are the files? No idea. Probably it's an XML or CSV file of citation data, which can't be that big. Right?
      * [Shortcuts to Data sets](http://doajournals.wordpress.com/2014/07/22/shortcuts-to-key-datasets-in-doaj-suggest-your-own/)
   2. Alex does R stuff.
+    * Thoughts about what factors to look at?
+      * gender!
+      * geography
+      * type of license
+      * language (maybe dual language stuff?)
   3. Publish.
