@@ -79,6 +79,7 @@ View(m)
 ##########################################################################
 
 
-### from here - check other subsets (Religion, Acoustics, etc) to see if problem  of "character (0)" persists.
+### from here - check other subsets (Religion, Acoustics, etc) to see if problem of "character (0)" persists.
 ### check the doaj URL and use verbs in-browser to double check data there
-### figure out how to download data in one go. might have to append multiple subdatasets otherwise.
+### figure out how to download data in one go. might have to append multiple sub-datasets otherwise.
+     ### OR some crazy use of sapply() and a custom function that would go down the rows of 'set' information extracted by oaih_list_sets() and apply oaih_transform(), then append the output into a single data frame. that would be awesome.
