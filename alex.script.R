@@ -2,14 +2,16 @@
 ### Messing with Journal Data ###
 #################################
 
+
+#Commented out all of this because using non relative files sucks.
 # data from - http://doaj.org/faq#metadata
 
-data <- read.csv('~/Documents/Academics/Projects/open-access-representation/journals.csv')
+##data <- read.csv('~/Documents/Academics/Projects/open-access-representation/journals.csv')
 # loading csv file
 
-head(data)
+##head(data)
 # checking to see how it looks
-View(data)
+##View(data)
 # opens up a pop-up window...
 # looks in-depth but not very broad. no info on gender.
 
@@ -17,9 +19,9 @@ View(data)
 # R doesn't love categorical data so we can either make a single large frequency table or just use the table() command where necessary.
 
 
-barplot(height = table(data$Language))
+##barplot(height = table(data$Language))
 # first problems become apparent here...
-View(table(data$Language))
+##View(table(data$Language))
 # we can scroll down and see that our Language categories are a mess. one of the highest frequencies belongs to a blank space, 'English' is spelled about six different ways, countries are often abbreviated and lumped.
 
 # can't really think of anything useful to do until we get our categories sorted... maybe something python can tackle?
