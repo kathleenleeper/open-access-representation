@@ -14,4 +14,16 @@ View(data)
 # cool. so this takes the dataframe "data" and greps for "orgo" within the 'data$subject' column. the output should be any row that contains the subject 'orgo'.
 # if we have to we can probably do the same for 'author'
 orgo <- data[grep("orgo", data$subject), ]
-orgo
+View(orgo)
+
+# again, ratio of m:f in orgo?
+# building bb data.frame
+gender <- data.frame(table(orgo$gender))
+gender$Perc <- gender$Freq/sum(gender$Freq)
+gender$Labels <- paste(gender$Var1, '\n', gender$Perc, '%')
+gender
+
+pie(gender$Freq, labels = gender$Labels, main = 'Gender Breakdown in Orgo') 
+# YAY
+# women are over-represented. typical.
+
