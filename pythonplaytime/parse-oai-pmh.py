@@ -1,4 +1,6 @@
 import codecs
+import csv
+
 f = codecs.open("oai-pmh-articles.xml").readlines() # file must be in local directory for this to run properly
 
 metadata = [] 
@@ -23,9 +25,13 @@ for i in range(0,len(f)):
         metadata.append(Article) # push artical dictionary to metadata array
         author=[] # reset Author array
 
-print len(metadata)
-print metadata[1]
-
-
+with open('parsed_oai.csv', 'w') as csvfile: # this could all be embedded into the loop above for efficiency, but was easiest to draft as a second loop.
+    fieldnames = ["Title","Date","Language","Author"]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    for i in metadata: # cycles through each artical in metadata array
+        authors = i["Author"] # handle multiple authors per artical
+        for j in authors: # cycle through each to make expand csv a la Alex's output_demo.2
+            writer.writerow({"Title": i["Title"], "Date": i["Date"],"Language": i["Language"], "Author": j})
 
 # CSV header format Title,Title Alternative,Identifier,Publisher,Language,ISSN,EISSN,Keyword,Start Year,End Year,Added on date,Subjects,Country,Publication fee,Further Information,CC License,Content in DOAJ
