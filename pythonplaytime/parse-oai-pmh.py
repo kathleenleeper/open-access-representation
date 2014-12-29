@@ -1,5 +1,6 @@
 import codecs
 import csv
+import re # regular expression searching
 
 f = codecs.open("oai-pmh-articles.xml").readlines() # file must be in local directory for this to run properly
 
@@ -30,8 +31,14 @@ for i in range(0,len(f)):
             author = authors[j].split(" ")
             for l in description.split(","):
                     if author[0] in l:
-                        if len(l.split(" ")) < 7:
-                            authors[j] = l.split(" ",1)[1]
+                        digitCheck = re.search("\d", l)  # check for digits
+                        asteriskCheck = re.search("\*", l)  # check for asterisks
+                        if digitCheck:
+                            authors[j] = l.split(" ")[1]
+                        elif asteriskCheck:
+                            authors[j] = l.split(" ")[1]
+                        else:
+                            authors[j] = l.strip().split(" ")[0]
         Article = {"Title": title, "Date": date,"Language": language, "Author": authors} # define article dictionary
         metadata.append(Article) # push line to metadata
         authors=[] # reset Author array
