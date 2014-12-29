@@ -1,11 +1,15 @@
 import codecs
-import csv
+from gender_detector import GenderDetector #import gender module
 
-f = codecs.open("oai-pmh-articles.xml").readlines() # file must be in local directory for this to run properly
+f = codecs.open("oai-pmh-articles.xml").readlines() # open xml file; make sure file is local
 
 metadata = [] 
 authors = []
+lastName = []
+firstName = []
 Article = {}
+
+d = GenderDetector('us') #using US for simplicity; modularizing comes later
 
 for i in range(0,len(f)):
     line = f[i]
@@ -23,26 +27,24 @@ for i in range(0,len(f)):
         language = splitLine[1].split('<')[0] 
         if language == "EN": # convert "EN" to English
             language = "English"
-    if "/record" in splitLine[0]: #stop pulling, start writing
+    if "/record" in splitLine[0]: #stop pulling, start writing. kinda
     
         #pull -first- names from description
         for j in range(0,len(authors)):
             author = authors[j].split(" ")
             for l in description.split(","):
-                    if author[0] in l:
-                        if len(l.split(" ")) < 7:
-                            authors[j] = l.split(" ",1)[1]
-        Article = {"Title": title, "Date": date,"Language": language, "Author": authors} # define article dictionary
+                if author[0] in l:
+                    print l.split()[0] 
+                    if len(l.split()) < 7:
+                        authors[j] = l.split(" ",1)[1]
+            
+            #gender = d.guess(k)
+            #print gender
+        Article = {"Title": title, "Date": date,"Language": language, "LastName": lastName, "FirstName": firstName} # define article dictionary
         metadata.append(Article) # push line to metadata
         authors=[] # reset Author array
+        firstName=[]
+
 
 # writing article to CSV file (temporary until we figure out how to put R inside python
-with open('parsed_oai.csv', 'w') as csvfile:
-    fieldnames = ["Title","Date","Language","Author"]
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
-    for i in metadata: # cycles through articles in metadata array
-        authors = i["Author"] # handle multiple authors per article by making a separate entry
-        for j in authors: # cycle through each to make expand csv a la Alex's output_demo.2
-            writer.writerow({"Title": i["Title"], "Date": i["Date"],"Language": i["Language"], "Author": j})
-
+#import csvwriter # ugly hacky way to run the csv writing script. whatever. we'll be okay
