@@ -1,5 +1,7 @@
 import codecs
 from gender_detector import GenderDetector #import gender module
+import csv
+import re # regular expression searching
 
 f = codecs.open("oai-pmh-articles.xml").readlines() # open xml file; make sure file is local
 
@@ -34,13 +36,15 @@ for i in range(0,len(f)):
             author = authors[j].split(" ")
             for l in description.split(","):
                 if author[0] in l:
-                    print l.split()[0] 
-                    if len(l.split()) < 7:
-                        authors[j] = l.split(" ",1)[1]
-            
-            #gender = d.guess(k)
-            #print gender
-        Article = {"Title": title, "Date": date,"Language": language, "LastName": lastName, "FirstName": firstName} # define article dictionary
+                    digitCheck = re.search("\d", l)  # check for digits
+                    asteriskCheck = re.search("\*", l)  # check for asterisks
+                    if digitCheck:
+                        authors[j] = l.split(" ")[1]
+                        elif asteriskCheck:
+                            authors[j] = l.split(" ")[1]
+                        else:
+                            authors[j] = l.strip().split(" ")[0]
+        Article = {"Title": title, "Date": date,"Language": language, "Author": authors} # define article dictionary
         metadata.append(Article) # push line to metadata
         authors=[] # reset Author array
         firstName=[]
