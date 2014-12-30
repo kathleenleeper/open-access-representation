@@ -3,7 +3,9 @@
  - [ ] use an actual XML library instead of just reading the file
  - [ ] figure out all the ways names are presented & how to get clean versions
  - [ ] parse locations from description as well (and keep track of which authors in which positions are from where)
-
+ - [ ] use multiple gender detectors to check consistency
+ - [ ] use a GD that also prints the percent of names that are m/f
+ - [ ] use a GD that takes age into account
 ##Methods Proposal, maybe?
 
   1. Pull metadata from DOAJ journals using their API(?) - [Directory of Open Access Journals](http://doaj.org/features)

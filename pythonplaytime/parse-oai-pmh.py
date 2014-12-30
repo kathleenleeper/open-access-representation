@@ -10,6 +10,7 @@ authors = []
 lastName = []
 firstName = []
 Article = {}
+genders = []
 
 d = GenderDetector('us') #using US for simplicity; modularizing comes later
 
@@ -31,7 +32,7 @@ for i in range(0,len(f)):
             language = "English"
     if "/record" in splitLine[0]: #stop pulling, start writing. kinda
     
-        #pull -first- names from description
+        #pull first names from description
         for j in range(0,len(authors)):
             author = authors[j].split(" ")
             for l in description.split(","):
@@ -39,15 +40,28 @@ for i in range(0,len(f)):
                     digitCheck = re.search("\d", l)  # check for digits
                     asteriskCheck = re.search("\*", l)  # check for asterisks
                     if digitCheck:
+                        authors[j] = l.split(" ",)[1]
+                    elif asteriskCheck:
                         authors[j] = l.split(" ")[1]
-                        elif asteriskCheck:
-                            authors[j] = l.split(" ")[1]
-                        else:
-                            authors[j] = l.strip().split(" ")[0]
-        Article = {"Title": title, "Date": date,"Language": language, "Author": authors} # define article dictionary
+                    else:
+                        authors[j] = l.strip().split(" ")[0]
+        #hacky second-tier cleanup & assigning genders
+        for k in range(0,len(authors)):
+            author = authors[k]
+            if re.search("\d",author):
+               authors[k] = "misparsed"
+            if "&amp" in author:
+                authors[k] = "misparsed"
+            if "" == author:
+                authors[k] = "misparsed"
+            author = authors[k]
+            gender = d.guess(author)
+            genders.append(gender)
+
+        Article = {"Title": title, "Date": date,"Language": language, "Authors": authors, "Assigned Genders": genders} # define article dictionary
         metadata.append(Article) # push line to metadata
-        authors=[] # reset Author array
-        firstName=[]
+        authors = []
+        genders = []
 
 
 # writing article to CSV file (temporary until we figure out how to put R inside python
