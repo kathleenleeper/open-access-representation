@@ -6,6 +6,7 @@
  - [ ] use multiple gender detectors to check consistency
  - [ ] use a GD that also prints the percent of names that are m/f
  - [ ] use a GD that takes age into account
+
 ##Methods Proposal, maybe?
 
   1. Pull metadata from DOAJ journals using their API(?) - [Directory of Open Access Journals](http://doaj.org/features)
