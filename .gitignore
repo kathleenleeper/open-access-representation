@@ -9,3 +9,6 @@
 .Rproj.user/
 # emacs files 
 *~
+
+#python executable files
+*.pyc
