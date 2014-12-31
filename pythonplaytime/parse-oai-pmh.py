@@ -1,18 +1,23 @@
 import codecs
-from gender_detector import GenderDetector #import gender module
+from gender_detector import GenderDetector #import genderMalev mdule
 import csv
 import re # regular expression searching
 
-f = codecs.open("oai-pmh-articles.xml").readlines() # open xml file; make sure file is local
+from genderComputer import GenderComputer #import gendercomputer - more fully featured
+import os
 
 metadata = [] 
 authors = []
 lastName = []
 firstName = []
 Article = {}
-genders = []
+Mgenders = []
+Cgenders = []
+
+f = codecs.open("oai-pmh-articles.xml").readlines() # open xml file; make sure file is local
 
 d = GenderDetector('us') #using US for simplicity; modularizing comes later
+gc = GenderComputer(os.path.abspath('./nameLists')) #make gendercomputer
 
 for i in range(0,len(f)):
     line = f[i]
@@ -55,24 +60,29 @@ for i in range(0,len(f)):
             if "" == author:
                 authors[k] = "misparsed"
             author = authors[k]
-            gender = d.guess(author)
-            genders.append(gender)
-
-        Article = {"Title": title, "Date": date,"Language": language, "Authors": authors, "AssignedGenders": genders} # define article dictionary
+            Mgender = d.guess(author) #guess with malev code
+            Mgenders.append(Mgender)
+            Cgender = gc.resolveGender(unicode(author,errors='ignore'), None) #guess with gender computer
+            Cgenders.append(Cgender)
+        Article = {"Title": title, "Date": date,"Language": language, "Authors": authors, "Mgenders": Mgenders, "Cgenders": Cgenders} # define article dictionary
         metadata.append(Article) # push line to metadata
         authors = []
-        genders = []
-
-
+        Mgenders = []
+        Cgenders = []
 # writing article to CSV file (temporary until we figure out how to put R inside python
 #import csvwriter # ugly hacky way to run the csv writing script. whatever. we'll be oka
 
 with open('parsed_oai.csv', 'w') as csvfile: # this could all be embedded into the loop above for efficiency, but was easiest to draft as a second loop.
-    fieldnames = ["Title","Date","Language","Author","Gender"]
+    fieldnames = ["Title","Date","Language","Author","MGender","CGender"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
     for i in metadata: # cycles through each artical in metadata array
         authors = i["Authors"] # handle multiple authors per artical
-        genders = i["AssignedGenders"]
+        Mgenders = i["Mgenders"]
+        Cgenders = i["Cgenders"]
+        
         for j in range(0,len(authors)): # cycle through each to make expand csv a la Alex's output_demo.2
-            writer.writerow({"Title": i["Title"], "Date": i["Date"],"Language": i["Language"], "Author": authors[j], "Gender": genders[j]})
+            author = authors[j]
+            Mgender = Mgenders[j]
+            Cgender = Cgenders[j]
+            writer.writerow({"Title": i["Title"], "Date": i["Date"],"Language": i["Language"], "Author": author, "MGender": Mgender, "CGender": Cgender})
