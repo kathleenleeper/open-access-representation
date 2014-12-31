@@ -58,11 +58,21 @@ for i in range(0,len(f)):
             gender = d.guess(author)
             genders.append(gender)
 
-        Article = {"Title": title, "Date": date,"Language": language, "Authors": authors, "Assigned Genders": genders} # define article dictionary
+        Article = {"Title": title, "Date": date,"Language": language, "Authors": authors, "AssignedGenders": genders} # define article dictionary
         metadata.append(Article) # push line to metadata
         authors = []
         genders = []
 
 
 # writing article to CSV file (temporary until we figure out how to put R inside python
-#import csvwriter # ugly hacky way to run the csv writing script. whatever. we'll be okay
+#import csvwriter # ugly hacky way to run the csv writing script. whatever. we'll be oka
+
+with open('parsed_oai.csv', 'w') as csvfile: # this could all be embedded into the loop above for efficiency, but was easiest to draft as a second loop.
+    fieldnames = ["Title","Date","Language","Author","Gender"]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    for i in metadata: # cycles through each artical in metadata array
+        authors = i["Authors"] # handle multiple authors per artical
+        genders = i["AssignedGenders"]
+        for j in range(0,len(authors)): # cycle through each to make expand csv a la Alex's output_demo.2
+            writer.writerow({"Title": i["Title"], "Date": i["Date"],"Language": i["Language"], "Author": authors[j], "Gender": genders[j]})
