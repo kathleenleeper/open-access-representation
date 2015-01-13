@@ -8,7 +8,6 @@ View(data)
 # making a table of values for barplot()
 # parenthesis around a command will print an output
 (mgender <- table(data$MGender))
-
 (cgender <- table(data$CGender))
 
 # barplots!
