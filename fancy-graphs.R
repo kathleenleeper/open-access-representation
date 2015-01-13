@@ -6,16 +6,16 @@ data <- read.csv('~/Documents/academics/projects/open-access-representation/pyth
 
 View(data)
 
-# making a table of values for barplot()
-# parenthesis around a command will print an output
-(mgender <- table(data$MGender) )
-(cgender <- table(data$CGender) )
+## making a table of values for barplot()
+## parenthesis around a command will print an output
+# (mgender <- table(data$MGender) )
+# (cgender <- table(data$CGender) )
 
 
 ### barplots! ###
-barplot(mgender)
-X11() # opens new graphing window
-barplot(cgender)
+# barplot(mgender)
+# X11() # opens new graphing window
+# barplot(cgender)
 
 ### fancier barplots! ###
 # install.packages(ggplot2)
@@ -29,13 +29,20 @@ ggplot(data = data, aes(MGender)) +  geom_histogram()
 # install.packages('reshape2')
 library(reshape2)
 
-newdata <- melt(data, id = 1:4)
+# which columns to melt?
+names(data)
+View(data)
+# everything except the 'MGender' and 'CGender' so we use the 1:4, 7:9 notation to pinpoint the appropriate columns
+newdata <- melt(data, id = c(1:4, 7:9))                  
+
+names(newdata)
 View(newdata)
+# double-checking and everything looks good...
 # now our python scripts (MGender & CGender) are themselves measures in the variable column!
 # this is a pretty useful function, esp. if we run multiple scripts to determine gender.
 
 ggplot(data = newdata, aes(x = variable, fill = value)) +
-geom_bar(position = 'dodge', colour = 'black', width = 0.85) +
+geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
 labs(title = 'Gender Breakdown by Two Python Scripts',
      x = 'Script Name', 
      y = 'Count') +
@@ -72,3 +79,16 @@ table(newdata$Language)
 # our only factors are Portugese and English...
 
 head(data)
+
+(lang <- table(data$CGender, data$Language))
+# building table of values
+# for two categorical variables we'll use a chi-square test
+
+chisq.test(lang)
+# this suggests that 'gender' is not affected by 'language' which doesn't seem right... i'll come back to this. definitely doing something wrong.
+
+
+        #####################################################
+
+
+## using R to match gender to names!
