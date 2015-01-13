@@ -11,9 +11,9 @@ f = codecs.open("oai-pmh-articles.xml").readlines() # open xml file; make sure f
 d = GenderDetector('us') #using US for simplicity; modularizing comes later
 gc = GenderComputer(os.path.abspath('./nameLists')) #make gendercomputer
 
-def writeData(metadata):
+def writeData(metadata): 
     with open('parsed_oai.csv', 'w') as csvfile: # this could all be embedded into the loop above for efficiency, but was easiest to draft as a second loop.
-        fieldnames = ["Title","Date","Language","Author","MGender","CGender"]
+        fieldnames = ["Title","Date","Language","Author","MGender","CGender","journal","publisher","topics"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for i in metadata: # cycles through each artical in metadata array
@@ -25,12 +25,13 @@ def writeData(metadata):
                 author = authors[j]
                 Mgender = Mgenders[j]
                 Cgender = Cgenders[j]
-                writer.writerow({"Title": i["Title"], "Date": i["Date"],"Language": i["Language"], "Author": author, "MGender": Mgender, "CGender": Cgender})
+                writer.writerow({"Title": i["Title"], "Date": i["Date"],"Language": i["Language"], "Author": author, "publisher":i["publisher"], "journal":i["source"], "topics":i["subjects"], "MGender": Mgender, "CGender": Cgender})
 
 metadata = [] 
                 
 def parseData(f):
     authors = []
+    subjects = []
     lastName = []
     firstName = []
     Article = {}
@@ -47,7 +48,17 @@ def parseData(f):
         if "description" in splitLine[0]:  
             description = splitLine[0].split('<')[0] 
         if "creator" in splitLine[0]: 
-            authors.append(splitLine[1].split('<')[0]) 
+            authors.append(splitLine[1].split('<')[0])
+        if "subject" in splitLine[0]:
+            subject = splitLine[1].split('<')[0]
+            if "LCC" in subject:
+                subjects.append(subject.split(":")[1])
+            else:
+                subjects.append(subject)
+        if "source" in splitLine[0]: 
+            source = splitLine[1].split('<')[0].split(',')[0]
+        if "publisher" in splitLine[0]: 
+            publisher = splitLine[1].split('<')[0] 
         if "language" in splitLine[0]:
             language = splitLine[1].split('<')[0] 
             if language == "EN": # convert "EN" to English
@@ -83,11 +94,12 @@ def parseData(f):
                 if Cgender == None:
                     Cgender = "unknown"
                 Cgenders.append(Cgender)
-            Article = {"Title": title, "Date": date,"Language": language, "Authors": authors, "Mgenders": Mgenders, "Cgenders": Cgenders} # define article dictionary
+            Article = {"Title": title, "Date": date,"Language": language, "Authors": authors, "subjects":subjects, "source": source, "publisher":publisher, "Mgenders": Mgenders, "Cgenders": Cgenders} # define article dictionary
             metadata.append(Article) # push line to metadata
             authors = []
             Mgenders = []
             Cgenders = []
+            subjects = []
     writeData(metadata)
 
     # writing article to CSV file (temporary until we figure out how to put R inside python
