@@ -2,6 +2,15 @@
 ### Makng Fancy? Graphs! ###
 ############################
 
+# 1. make fancy graphs --DONE--
+# 2. gender breakdown by language - run stats?
+# 3. use R to figure out gender
+
+
+
+       ###########################  1  ################################
+
+
 data <- read.csv('~/Documents/academics/projects/open-access-representation/pythonplaytime/parsed_oai.csv')
 
 View(data)
@@ -71,7 +80,7 @@ scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
 # reference- http://stackoverflow.com/questions/13260626/selecting-data-frame-columns-to-plot-in-ggplot2
 
 
-       ############################################################
+       ###########################  2  #################################
 
 
 # what is the gender breakdown by language?
@@ -88,7 +97,39 @@ chisq.test(lang)
 # this suggests that 'gender' is not affected by 'language' which doesn't seem right... i'll come back to this. definitely doing something wrong.
 
 
-        #####################################################
+       ###########################  3  ##################################
 
 
-## using R to match gender to names!
+# using R to match gender to names!
+# maybe
+# so far i've come across two packages that can do this...
+## 'gender'
+## 'babynames'
+
+
+### R-GENDER ###
+
+# install.packages('devtools')
+## allows us to install from github?
+library(devtools)
+
+# install.packages("gender")
+# works now but i spent 4 hours trying to make it work earlier, nbd.
+library(gender)
+devtools::install_github("lmullen/gender-data-pkg")
+# necessary data the for some reason doesn't come with the package itself
+
+# to use, simply give gender() a name
+gender('Alex')
+
+gender('Sam')
+
+gender('Skippy')
+
+data$Author <- as.character(data$Author)
+# function gender() needs a character vector
+
+gender.data <- gender(data$Author)
+# running gender()...
+head(gender.data)
+# output looks awful.
