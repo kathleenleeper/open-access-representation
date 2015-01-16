@@ -11,7 +11,7 @@
        ###########################  1  ################################
 
 
-data <- read.csv('~/Documents/academics/projects/open-access-representation/pythonplaytime/parsed_oai.csv')
+data <- read.csv('~/Documents/projects/open-access-representation/pythonplaytime/parsed_oai.csv', stringsAsFactors = FALSE)
 
 View(data)
 
@@ -116,20 +116,78 @@ library(devtools)
 # install.packages("gender")
 # works now but i spent 4 hours trying to make it work earlier, nbd.
 library(gender)
-devtools::install_github("lmullen/gender-data-pkg")
-# necessary data the for some reason doesn't come with the package itself
+# devtools::install_github("lmullen/gender-data-pkg")
+## necessary data that for some reason doesn't come with the package itself
 
 # to use, simply give gender() a name
 gender('Alex')
-
-gender('Sam')
-
 gender('Skippy')
 
 data$Author <- as.character(data$Author)
 # function gender() needs a character vector
 
-gender.data <- gender(data$Author)
-# running gender()...
+# vignette(topic = "predicting-gender", package = "gender")
+## tells you exactly how to convert list of lists to dataframe!
+library(dplyr)
+# need 'dplyr' package to use piping commands (%>%)
+
+gender.data <- gender(data$Author) %>%
+    do.call(rbind.data.frame, .)
+# this code comes directly from the vignette
+# first line passes gender() function over data$Author and pipes the output to the second line which converts the output to a dataframe.
+
 head(gender.data)
-# output looks awful.
+View(gender.data)
+# YAYY!
+
+table(gender.data$gender)
+# 90 female, 73 male, lots of unkowns but it's not telling us that.
+# now put this into our previous graph....
+
+View(data)
+data$RGender <- gender.data$gender
+# put into original dataframe
+
+
+levels(data$RGender) <- c(levels(data$RGender), "unknown")
+# because factors suck we have to add a factor level in order to convert our NAs to unknowns
+data$RGender[is.na(data$RGender)] = 'unknown'
+table(data$RGender)
+
+newdata <- melt(data, id = c(1:4, 7:9))                  
+# remelting data; we actually don't have to change the previous code!
+View(newdata)
+
+ggplot(data = newdata, aes(x = variable, fill = value)) +
+geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
+labs(title = 'Gender Breakdown by Two Python Scripts',
+     x = 'Script Name', 
+     y = 'Count') +
+scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
+                              'gray70'), 
+                  labels = c('Female', 'Male', 'Unisex', 'Unknown'),
+                  name = 'Gender' )
+
+
+# turns out the gender package can use multiple data sources to determine gender....
+## ssa method
+## ipums method
+## kantrowitz method
+## genderize method, which comes from social networks!
+## demo method, demo only and 'not suitable for research purposes'
+
+
+##### genderize
+
+genderize <- gender(data$Author, method = 'genderize') %>%
+    do.call(rbind.data.frame, .)
+
+table(genderize$gender)
+
+
+### BABYNAMES ###
+
+# install.packages('babynames')
+library(babynames)
+
+?babynames
