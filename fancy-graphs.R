@@ -3,17 +3,22 @@
 ############################
 
 # 1. make fancy graphs --DONE--
-# 2. gender breakdown by language - run stats?
-# 3. use R to figure out gender
+# 2. gender breakdown by language - run stats? --IN PROGRESS--
+  ## best done when we've 'decided' on a final gender breakdown
+# 3. use R to figure out gender --IN PROGRESS--
+  ## package 'gender' has three or four databases to call from...
+  ## try a few of them and see which is most accurate
+# 4. produce a 'cleaned up' version of code that loads the latest version of 'parsed_oai.csv' with fewer comments / building code.
+
+###########################  1  ################################
 
 
+rm(list = ls())
+# clearing work directory
+# most of this is commented out now because it was just process... RGender data is now written to 'parsed_oai.csv' so we can just upload that directly and work from there.
 
-       ###########################  1  ################################
-
-
-data <- read.csv('~/Documents/projects/open-access-representation/pythonplaytime/parsed_oai.csv', stringsAsFactors = FALSE)
-
-View(data)
+data <- read.csv('~/Documents/projects/open-access-representation/pythonplaytime/parsed_oai.csv')
+# View(data)
 
 ## making a table of values for barplot()
 ## parenthesis around a command will print an output
@@ -30,7 +35,7 @@ View(data)
 # install.packages(ggplot2)
 library(ggplot2)
 
-ggplot(data = data, aes(MGender)) +  geom_histogram()
+# ggplot(data = data, aes(MGender)) +  geom_histogram()
 # basic example, now put MGender and CGender on the same graph
 
 # ggplot2 doesn't like that we're trying to plot two columns from one dataframe onto one graph.
@@ -40,25 +45,24 @@ library(reshape2)
 
 # which columns to melt?
 names(data)
-View(data)
+# View(data)
 # everything except the 'MGender' and 'CGender' so we use the 1:4, 7:9 notation to pinpoint the appropriate columns
-newdata <- melt(data, id = c(1:4, 7:9))                  
+newdata <- melt(data, id = c(1:5, 8:10))
 
 names(newdata)
-View(newdata)
+# View(newdata)
 # double-checking and everything looks good...
 # now our python scripts (MGender & CGender) are themselves measures in the variable column!
 # this is a pretty useful function, esp. if we run multiple scripts to determine gender.
-
-ggplot(data = newdata, aes(x = variable, fill = value)) +
-geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
-labs(title = 'Gender Breakdown by Two Python Scripts',
-     x = 'Script Name', 
-     y = 'Count') +
-scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
-                              'gray70'), 
-                  labels = c('Female', 'Male', 'Unisex', 'Unknown'),
-                  name = 'Gender' )
+# ggplot(data = newdata, aes(x = variable, fill = value)) +
+# geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
+# labs(title = 'Gender Breakdown by Two Python Scripts',
+#     x = 'Script Name', 
+#     y = 'Count') +
+# scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
+#                               'gray70'), 
+#                   labels = c('Female', 'Male', 'Unisex', 'Unknown'),
+#                   name = 'Gender' )
 # wow finally.
 # bottom line here is the "unknown" column. the better script produces fewer unknowns. in this case the clear winner is CGender.
 
@@ -71,10 +75,10 @@ scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
 ## can we fit two columns of data on a single graph more simply, without invoking melt()?
 ## maybe with aes_string()
 # ggplot(data = data,
-#       aes_string(MGender, CGender)) +
-##       # aes_string() allows you to pass a string to ggplot
-#       # this might be a way to build the plot without using melt()
-#       # keeping this for future reference
+#      aes_string(MGender, CGender)) +
+       # aes_string() allows you to pass a string to ggplot
+       # this might be a way to build the plot without using melt()
+       # keeping this for future reference
 # geom_histogram(position = 'dodge')
 # on second thought using aes_string () might require a for() loop, in which case it's not the easiest option.
 # reference- http://stackoverflow.com/questions/13260626/selecting-data-frame-columns-to-plot-in-ggplot2
@@ -120,10 +124,10 @@ library(gender)
 ## necessary data that for some reason doesn't come with the package itself
 
 # to use, simply give gender() a name
-gender('Alex')
-gender('Skippy')
+# gender('Alex')
+# gender('Skippy')
 
-data$Author <- as.character(data$Author)
+# data$Author <- as.character(data$Author)
 # function gender() needs a character vector
 
 # vignette(topic = "predicting-gender", package = "gender")
@@ -131,42 +135,50 @@ data$Author <- as.character(data$Author)
 library(dplyr)
 # need 'dplyr' package to use piping commands (%>%)
 
-gender.data <- gender(data$Author) %>%
-    do.call(rbind.data.frame, .)
+# gender.data <- gender(data$Author) %>%
+#     do.call(rbind.data.frame, .)
 # this code comes directly from the vignette
 # first line passes gender() function over data$Author and pipes the output to the second line which converts the output to a dataframe.
 
-head(gender.data)
-View(gender.data)
+# head(gender.data)
+# View(gender.data)
 # YAYY!
 
-table(gender.data$gender)
+# table(gender.data$gender)
 # 90 female, 73 male, lots of unkowns but it's not telling us that.
 # now put this into our previous graph....
 
-View(data)
-data$RGender <- gender.data$gender
+# View(data)
+# data$RGender <- gender.data$gender
 # put into original dataframe
 
 
-levels(data$RGender) <- c(levels(data$RGender), "unknown")
+# levels(data$RGender) <- c(levels(data$RGender), "unknown")
 # because factors suck we have to add a factor level in order to convert our NAs to unknowns
-data$RGender[is.na(data$RGender)] = 'unknown'
-table(data$RGender)
+# data$RGender[is.na(data$RGender)] = 'unknown'
+# table(data$RGender)
 
-newdata <- melt(data, id = c(1:4, 7:9))                  
+# newdata <- melt(data, id = c(1:4, 7:9))                  
 # remelting data; we actually don't have to change the previous code!
-View(newdata)
+# View(newdata)
 
 ggplot(data = newdata, aes(x = variable, fill = value)) +
 geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
 labs(title = 'Gender Breakdown by Two Python Scripts',
-     x = 'Script Name', 
-     y = 'Count') +
+      x = 'Script Name', 
+      y = 'Count') +
 scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
                               'gray70'), 
-                  labels = c('Female', 'Male', 'Unisex', 'Unknown'),
-                  name = 'Gender' )
+                   labels = c('Female', 'Male', 'Unisex', 'Unknown'),
+                   name = 'Gender' )
+
+
+### WRITING NEW CSV WITH RGENDER DATA  ###
+
+
+# View(data)
+# write.csv(data, file = 'parsed_oai.csv')
+## writes to current work directory
 
 
 # turns out the gender package can use multiple data sources to determine gender....
@@ -177,11 +189,12 @@ scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
 ## demo method, demo only and 'not suitable for research purposes'
 
 
-##### genderize
+##### genderize ######
 
-genderize <- gender(data$Author, method = 'genderize') %>%
+genderize <- gender(data$Author, mode = 'genderize') %>%
     do.call(rbind.data.frame, .)
-
+# doesn't work when mode is called... outputs error
+# Error in if (result$gender == "female") { : argument is of length zero
 table(genderize$gender)
 
 
@@ -189,5 +202,4 @@ table(genderize$gender)
 
 # install.packages('babynames')
 library(babynames)
-
-?babynames
+# for now it looks like 'babynames' just provides a few more datasets to pull gender data from, some of which we've already accessed...
