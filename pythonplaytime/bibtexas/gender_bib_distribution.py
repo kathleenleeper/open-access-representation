@@ -15,6 +15,16 @@ bib = 'CriticalOpenNeuro.bib' #bring that bib file in
 with open(bib) as bibtex_file:
     parser = BibTexParser()
     parser.customization = author #parse author fields as individuals
-    bib_database = b.load(bibtex_file, parser = parser)
+    data = b.load(bibtex_file, parser = parser)
 
+#print(data.entries[10])
 
+#for i in  data.entries:
+
+for i in data.entries:
+    for k, v in i.iteritems():
+        if 'author' in k:
+            print k, v 
+        
+
+       
