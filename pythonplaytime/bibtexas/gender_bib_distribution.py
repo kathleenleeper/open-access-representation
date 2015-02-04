@@ -3,16 +3,18 @@
 #from genderComputer import GenderComputer #import gendercomputer - more fully featured
 #import csv
 #import re # regular expression searching
-
+import pprint as pp
 import os
 
 import bibtexparser as b #module for bibtexin'
-from b.bparsers import BibTexParser #import to add customizations
+from bibtexparser.bparser import BibTexParser #import to add customization
+from bibtexparser.customization import *
 
-b = 'CriticalOpenNeuro.bib' #bring that bib file in
+bib = 'CriticalOpenNeuro.bib' #bring that bib file in
 
-parser = BibTexParser()
+with open(bib) as bibtex_file:
+    parser = BibTexParser()
+    parser.customization = author #parse author fields as individuals
+    bib_database = b.load(bibtex_file, parser = parser)
 
 
-with open(b) as bibfile:
-    bib = bparse.load(bibfile)
