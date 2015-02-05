@@ -1,6 +1,7 @@
 #import codecs
-#from gender_detector import GenderDetector #import genderMalev mdule
-#from genderComputer import GenderComputer #import gendercomputer - more fully featured
+#from gender_detector import GenderDetector #import genderMalev mdul
+
+from genderComputer import GenderComputer #import gendercomputer - more fully featured
 #import csv
 #import re # regular expression searching
 import pprint as pp
@@ -17,14 +18,16 @@ with open(bib) as bibtex_file:
     parser.customization = author #parse author fields as individuals
     data = b.load(bibtex_file, parser = parser)
 
-#print(data.entries[10])
+print(data.entries[10])
 
 #for i in  data.entries:
 
 for i in data.entries:
-    for k, v in i.iteritems():
-        if 'author' in k:
-            print k, v 
+    items  = i.iteritems()
+    for k, v in items:
+        if k == 'author':
+            for j in v:
+                au = ', '.join(reversed(j.split(', ', 1))) #convert from last, first to first, last
+                print au
+               # print j
         
-
-       
