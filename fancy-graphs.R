@@ -15,54 +15,48 @@
 
 rm(list = ls())
 # clearing work directory
-# most of this is commented out now because it was just process... RGender data is now written to 'parsed_oai.csv' so we can just upload that directly and work from there.
 
 data <- read.csv('~/Documents/projects/open-access-representation/pythonplaytime/parsed_oai.csv')
-# View(data)
+View(data)
+head(data)
 
-## making a table of values for barplot()
-## parenthesis around a command will print an output
-# (mgender <- table(data$MGender) )
-# (cgender <- table(data$CGender) )
+# making a table of values for barplot()
+# parenthesis around a command will print an output
+(mgender <- table(data$MGender) )
+(cgender <- table(data$CGender) )
+(ngender <- table(data$NGender) )
+# NGender has unknowns and "parse errors"
+# can they be folded into unknowns?
 
-
-### barplots! ###
-# barplot(mgender)
-# X11() # opens new graphing window
-# barplot(cgender)
 
 ### fancier barplots! ###
-# install.packages(ggplot2)
+# install.packages('ggplot2')
 library(ggplot2)
 
-# ggplot(data = data, aes(MGender)) +  geom_histogram()
-# basic example, now put MGender and CGender on the same graph
-
-# ggplot2 doesn't like that we're trying to plot two columns from one dataframe onto one graph.
+# ggplot2 won't like that we're trying to plot two columns from one dataframe onto one graph.
 # melting the data should solve this... 
 # install.packages('reshape2')
 library(reshape2)
-
 # which columns to melt?
 names(data)
-# View(data)
-# everything except the 'MGender' and 'CGender' so we use the 1:4, 7:9 notation to pinpoint the appropriate columns
-newdata <- melt(data, id = c(1:5, 8:10))
+
+# everything except the 'MGender' and 'CGender' so we use the 1:4, 7:9 notation # to pinpoint the appropriate columns
+newdata <- melt(data, id = c(1:4, 8:10))
 
 names(newdata)
-# View(newdata)
-# double-checking and everything looks good...
+View(newdata)
 # now our python scripts (MGender & CGender) are themselves measures in the variable column!
-# this is a pretty useful function, esp. if we run multiple scripts to determine gender.
-# ggplot(data = newdata, aes(x = variable, fill = value)) +
-# geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
-# labs(title = 'Gender Breakdown by Two Python Scripts',
-#     x = 'Script Name', 
-#     y = 'Count') +
-# scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
-#                               'gray70'), 
-#                   labels = c('Female', 'Male', 'Unisex', 'Unknown'),
-#                   name = 'Gender' )
+
+ggplot(data = newdata, aes(x = variable, fill = value)) +
+geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
+   labs(title = 'Gender Breakdown by Two Python Scripts',
+        x = 'Script Name',
+        y = 'Count') +
+scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
+                            'gray70', 'pink'),
+                 labels = c('Female', 'Male', 'Unisex', 'Unknown'),
+                 name = 'Gender' )
+
 # wow finally.
 # bottom line here is the "unknown" column. the better script produces fewer unknowns. in this case the clear winner is CGender.
 
@@ -90,8 +84,6 @@ names(newdata)
 # what is the gender breakdown by language?
 table(newdata$Language)
 # our only factors are Portugese and English...
-
-head(data)
 
 (lang <- table(data$CGender, data$Language))
 # building table of values
@@ -127,7 +119,7 @@ library(gender)
 # gender('Alex')
 # gender('Skippy')
 
-# data$Author <- as.character(data$Author)
+data$Author <- as.character(data$Author)
 # function gender() needs a character vector
 
 # vignette(topic = "predicting-gender", package = "gender")
