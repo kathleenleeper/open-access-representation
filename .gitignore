@@ -15,3 +15,6 @@
 
 #python executable files
 *.pyc
+
+#bib files for testing
+*.bib
