@@ -1,70 +1,107 @@
-############################
-### Makng Fancy? Graphs! ###
-############################
+                        ############################
+                        ###        R Code        ###
+                        ############################
 
-# 1. make fancy graphs --DONE--
-# 2. gender breakdown by language - run stats? --IN PROGRESS--
-  ## best done when we've 'decided' on a final gender breakdown
-# 3. use R to figure out gender --IN PROGRESS--
-  ## package 'gender' has three or four databases to call from...
-  ## try a few of them and see which is most accurate
-# 4. produce a 'cleaned up' version of code that loads the latest version of 'parsed_oai.csv' with fewer comments / building code.
+# 1. use R to figure out gender  -- IN PROGRESS --
+  # will come back to this later...
+  # R doesn't like current name format (Paul C). can we use github to revert
+  # back to the older format of first name only?
+# 2. make fancy graphs  --IN PROGRESS -- 
+# 3. take consensus of API scripts.
+# 4. produce a 'cleaned up' version of code that loads the latest version of 'parsed_oai.csv' with fewer comments / building code.  -- IN PROGRESS--
+# 5. create RPubs document / markdown file!
 
-###########################  1  ################################
+      ######################## DATA PREP #############################
 
 
 rm(list = ls())
 # clearing work directory
 
-data <- read.csv('~/Documents/projects/open-access-representation/pythonplaytime/parsed_oai.csv')
+data <- read.csv('~/Documents/projects/open-access-representation/pythonplaytime/parsed_oai_COPY.csv')
+# working with a stable copy now.
 View(data)
 head(data)
 
-# making a table of values for barplot()
-# parenthesis around a command will print an output
-(mgender <- table(data$MGender) )
-(cgender <- table(data$CGender) )
-(ngender <- table(data$NGender) )
-# NGender has unknowns and "parse errors"
-# can they be folded into unknowns?
-
-
-### fancier barplots! ###
+# installing necessary packages... comment in as necessary
+# install.packages('gender')
+# install.packages('devtools')
+# install.packages('dplyr')
 # install.packages('ggplot2')
+# install.packages('reshape')
+# devtools::install_github("lmullen/gender-data-pkg")
+
+library(devtools)
+library(gender)
+library(dplyr) # for piping commands (%>%)
 library(ggplot2)
+library(reshape) # such an important package to this process
 
-# ggplot2 won't like that we're trying to plot two columns from one dataframe onto one graph.
-# melting the data should solve this... 
-# install.packages('reshape2')
-library(reshape2)
-# which columns to melt?
+
+
+     #############################  1  ################################
+
+
+# simply give gender() a name
+gender('Alex')
+
+data$Author <- as.character(data$Author)
+# function gender() needs a character vector so we convert our author list
+
+gender.data <- gender(data$Author) %>% do.call(rbind.data.frame, .)
+# this code comes directly from the vignette
+# first line passes gender() function over data$Author and pipes the output to the second line which converts the output to a dataframe.
+
+View(gender.data)
+# not working, more than likely because 'Author' data is not a single name.
+# not difficult to fix, we can split the data in that column
+
+### use colsplit() from reshape package. 
+
+
+
+     #############################  2  ################################
+
+
+# start by exploring the existing gender breakdown in tabular format
+(table(data$MGender))
+(table(data$CGender))
+(table(data$NGender))
+# we can see that CGender has a "unisex" variable and NGender has an "misparsed" variable. both might get in the way
+
+# let's convert 'misparsed' to 'unknown' in NGender column
+data$NGender[data$NGender == 'misparsed'] <- 'unknown'
+table(data$NGender)
+
+data$NGender <- factor(data$NGender)
+# gets rid of annoying 'misparsed' category with zero values
+
+# next, melting data allows us to put things in proper format for ggplot2
+# what to melt?
 names(data)
-
-# everything except the 'MGender' and 'CGender' so we use the 1:4, 7:9 notation # to pinpoint the appropriate columns
+# everything except the gender APIs so we use the 1:4, 7:9 notation to pinpoint the appropriate columns
 newdata <- melt(data, id = c(1:4, 8:10))
 
-names(newdata)
 View(newdata)
-# now our python scripts (MGender & CGender) are themselves measures in the variable column!
+# now our python APIs are themselves measures in the variable column!
 
+
+# plotting all the API data
 ggplot(data = newdata, aes(x = variable, fill = value)) +
-geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
-   labs(title = 'Gender Breakdown by Two Python Scripts',
-        x = 'Script Name',
-        y = 'Count') +
-scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
-                            'gray70', 'pink'),
-                 labels = c('Female', 'Male', 'Unisex', 'Unknown'),
-                 name = 'Gender' )
+geom_histogram(position = 'dodge', colour = 'black', width = 0.85) + 
+labs(title = 'Gender Breakdown by Three Python Scripts',
+     x = 'Script Name',
+     y = 'Count') +
+scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4', 'gray70'), 
+                 labels = c('Female', 'Male', 'Unknown', 'Unisex', 'Misparsed'),
+                 name = 'Gender')
 
-# wow finally.
+# ggsave(filename = 'python-APIs.png', path = '~/Desktop')
+
 # bottom line here is the "unknown" column. the better script produces fewer unknowns. in this case the clear winner is CGender.
 
 
 
-   ####################################################################
-
-
+#######################################################################
 
 ## can we fit two columns of data on a single graph more simply, without invoking melt()?
 ## maybe with aes_string()
@@ -76,6 +113,7 @@ scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
 # geom_histogram(position = 'dodge')
 # on second thought using aes_string () might require a for() loop, in which case it's not the easiest option.
 # reference- http://stackoverflow.com/questions/13260626/selecting-data-frame-columns-to-plot-in-ggplot2
+
 
 
        ###########################  2  #################################
@@ -96,49 +134,40 @@ chisq.test(lang)
        ###########################  3  ##################################
 
 
-# using R to match gender to names!
-# maybe
-# so far i've come across two packages that can do this...
-## 'gender'
-## 'babynames'
+# we want a consensus of API scripts, or a way to summarize what each is telling us.
+# e.g. 75% of our python scripts say Paul is male.
+
+census <- data[4:7]
+head(census)
+# taking a subset of data to make melting easier
+
+census2 <- melt(census, id = 'Author')
+head(census2)
 
 
-### R-GENDER ###
+census3 <- as.data.frame(table(census2$Author, census2$value))
+head(census3)
 
-# install.packages('devtools')
-## allows us to install from github?
-library(devtools)
 
-# install.packages("gender")
-# works now but i spent 4 hours trying to make it work earlier, nbd.
-library(gender)
-# devtools::install_github("lmullen/gender-data-pkg")
-## necessary data that for some reason doesn't come with the package itself
+ggplot(data = census3, aes(x = Var1, fill = Freq)) +
+geom_bar()
 
-# to use, simply give gender() a name
-# gender('Alex')
-# gender('Skippy')
 
-data$Author <- as.character(data$Author)
-# function gender() needs a character vector
+                               
 
-# vignette(topic = "predicting-gender", package = "gender")
-## tells you exactly how to convert list of lists to dataframe!
-library(dplyr)
-# need 'dplyr' package to use piping commands (%>%)
+head(census3)
 
-# gender.data <- gender(data$Author) %>%
-#     do.call(rbind.data.frame, .)
-# this code comes directly from the vignette
-# first line passes gender() function over data$Author and pipes the output to the second line which converts the output to a dataframe.
+ls()
 
-# head(gender.data)
-# View(gender.data)
-# YAYY!
 
-# table(gender.data$gender)
-# 90 female, 73 male, lots of unkowns but it's not telling us that.
-# now put this into our previous graph....
+
+
+
+#################################################
+# this should probably be in Section 1 but i'll #
+# leave it here for now. might contain useful   #
+# code.                                         #
+#################################################
 
 # View(data)
 # data$RGender <- gender.data$gender
@@ -153,24 +182,6 @@ library(dplyr)
 # newdata <- melt(data, id = c(1:4, 7:9))                  
 # remelting data; we actually don't have to change the previous code!
 # View(newdata)
-
-ggplot(data = newdata, aes(x = variable, fill = value)) +
-geom_histogram(position = 'dodge', colour = 'black', width = 0.85) +
-labs(title = 'Gender Breakdown by Two Python Scripts',
-      x = 'Script Name', 
-      y = 'Count') +
-scale_fill_manual(values = c('#FF9999', 'lightblue3', 'plum4',
-                              'gray70'), 
-                   labels = c('Female', 'Male', 'Unisex', 'Unknown'),
-                   name = 'Gender' )
-
-
-### WRITING NEW CSV WITH RGENDER DATA  ###
-
-
-# View(data)
-# write.csv(data, file = 'parsed_oai.csv')
-## writes to current work directory
 
 
 # turns out the gender package can use multiple data sources to determine gender....
