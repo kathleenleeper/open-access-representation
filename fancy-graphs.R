@@ -141,26 +141,19 @@ census <- data[4:7]
 head(census)
 # taking a subset of data to make melting easier
 
-census2 <- melt(census, id = 'Author')
+census2 <- melt(census, id = Author)
 head(census2)
-
+# melting so that each API's gender assignment is a value
 
 census3 <- as.data.frame(table(census2$Author, census2$value))
 head(census3)
+# creating a table then outputting it as a dataframe.
 
-
-ggplot(data = census3, aes(x = Var1, fill = Freq)) +
-geom_bar()
-
-
-                               
-
-head(census3)
-
-ls()
-
-
-
+# plotting....
+ggplot(data = census2, aes(x = Author, fill = value)) +
+geom_bar(position = 'dodge')
+# don't think this lends itself to graphing...
+# ideal output would probably be a table of sorts. even better: write a function that outputs the 'correct' gender based on frequency taken from the different API scripts.
 
 
 #################################################
